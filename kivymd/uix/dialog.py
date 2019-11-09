@@ -18,7 +18,7 @@ as the Kivy framework.
 Example
 -------
 
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.factory import Factory
 from kivy.utils import get_hex_from_color
@@ -54,9 +54,7 @@ Builder.load_string('''
 ''')
 
 
-class Example(App):
-    theme_cls = ThemeManager()
-    theme_cls.primary_palette = 'Teal'
+class Example(MDApp):
     title = "Dialogs"
 
     def build(self):
@@ -196,7 +194,7 @@ class BaseDialog(ThemableBehavior, ModalView):
     def set_content(self, instance_content_dialog):
         def _events_callback(result_press):
             self.dismiss()
-            if result_press:
+            if result_press and self.events_callback:
                 self.events_callback(result_press, self)
 
         if self.device_ios:  # create buttons for iOS

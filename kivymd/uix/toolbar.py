@@ -18,7 +18,7 @@ as the Kivy framework.
 Example
 -------
 
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.lang import Builder
 
 from kivymd.theming import ThemeManager
@@ -54,9 +54,7 @@ BoxLayout:
 '''
 
 
-class MyApp(App):
-    theme_cls = ThemeManager()
-    theme_cls.primary_palette = 'Blue'
+class MyApp(MDApp):
     md_app_bar = None
 
     def build(self):
@@ -237,9 +235,9 @@ class MDBottomAppBar(FloatLayout):
     )
     anchor = StringProperty("right")
     callback = ObjectProperty(lambda x: None)
+    action_button = ObjectProperty()
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def on_kv_post(self, base_widget):
         # Default action Button.
         x = (
             Window.width - dp(56) - dp(20)

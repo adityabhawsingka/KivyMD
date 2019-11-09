@@ -15,7 +15,7 @@ Example
 
 import os
 
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.metrics import dp
@@ -130,9 +130,7 @@ class MyCard(MDCard):
     text = StringProperty('')
 
 
-class Test(App):
-    theme_cls = ThemeManager()
-    theme_cls.primary_palette = 'Indigo'
+class Test(MDApp):
     swiper_manager = None
 
     def build(self):
@@ -226,10 +224,12 @@ class ItemPagination(ThemableBehavior, Widget):
 
 class MDSwiperPagination(ThemableBehavior, BoxLayout):
     screens = ListProperty()
-    items_round_paginator = []
+    items_round_paginator = ListProperty()
     manager = ObjectProperty()
 
     def on_screens(self, instance, screen_names):
+        self.items_round_paginator = []
+        self.ids.box.clear_widgets()
         for i, screen_name in enumerate(screen_names):
             item_paginator = ItemPagination(current_index=i)
             self.ids.box.add_widget(item_paginator)
@@ -269,8 +269,6 @@ class MDSwiperManager(ScreenManager):
         self.transition.screen_out.pos = self.pos
         super(SlideTransition, self.transition).on_complete()
         self.swipe = False
-        if self.paginator:
-            self.paginator.set_current_screen_round(self.index_screen)
 
     def swith_screen(self, direction):
         if direction == "right":
@@ -284,6 +282,8 @@ class MDSwiperManager(ScreenManager):
             self.index_screen = 0
         self.transition.direction = direction
         self.current = self.screen_names[self.index_screen]
+        if self.paginator:
+            self.paginator.set_current_screen_round(self.index_screen)
 
     def on_touch_move(self, touch):
         if self.collide_point(*touch.pos) and not self.swipe:

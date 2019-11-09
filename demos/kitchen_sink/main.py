@@ -27,7 +27,6 @@ os.environ["KITCHEN_SINK_ASSETS"] = os.path.join(
 
 from kivy.factory import Factory
 from kivy.metrics import dp, sp
-from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -36,7 +35,14 @@ Window.softinput_mode = "below_target"
 
 from kivy.animation import Animation
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty, ListProperty
+from kivy.properties import (
+    ObjectProperty,
+    StringProperty,
+    ListProperty,
+    BooleanProperty,
+    NumericProperty,
+    DictProperty,
+)
 from kivy.uix.modalview import ModalView
 from kivy.utils import get_hex_from_color
 from kivy import platform
@@ -44,6 +50,7 @@ from kivy import platform
 from screens import Screens
 from dialogs import DialogLoadKvFiles
 
+from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.fanscreenmanager import MDFanScreen
 from kivymd.uix.list import (
@@ -66,7 +73,7 @@ def toast(text):
     toast(text)
 
 
-main_widget_kv = """
+root_kv = """
 #:import Window kivy.core.window.Window
 #:import get_hex_from_color kivy.utils.get_hex_from_color
 #:import NoTransition kivy.uix.screenmanager.NoTransition
@@ -162,231 +169,16 @@ main_widget_kv = """
             icon: 'remote'
 
 
-<ContentNavigationDrawer@MDNavigationDrawer>
-    drawer_logo: f'{environ["KITCHEN_SINK_ASSETS"]}drawer_logo.png'
-
-    NavigationDrawerSubheader:
-        text: "Menu of Examples:"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Bottom App Bar"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Bottom Navigation"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Bottom Sheets"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Buttons"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Cards"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Chips"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Dialogs"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Download File"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Dropdown Item"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.open_drop_items_examples()
-
-    NavigationDrawerIconButton:
-        text: "Expansion Panel"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Floating Buttons"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Files Manager"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Fan Manager"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Grid lists"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Labels"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Lists"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        icon: "gesture-swipe"
-        text: "Manager Swiper"
-        on_release:
-            app.show_manager_swiper()
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "MD Icons"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Menus"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Pickers"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Progress & activity"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Progress and Slider"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Refresh Layout"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Selection controls"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Snackbars"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Tabs"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Text fields"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Themes"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "Toolbars"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-    NavigationDrawerIconButton:
-        text: "User Animation Card"
-        icon: app.drawer_item_icons.get(self.text, 'checkbox-blank-circle')
-        on_release:
-            app.show_screen(self.text)
-            app.set_title_toolbar(self.text)
-
-
 NavigationLayout:
     id: nav_layout
 
-    ContentNavigationDrawer:
+    MDNavigationDrawer:
         id: nav_drawer
+        drawer_logo: f'{environ["KITCHEN_SINK_ASSETS"]}drawer_logo.png'
+    
+        NavigationDrawerSubheader:
+            text: "Menu of Examples:"
+        # Items will be added in on_start of app class
 
     FloatLayout:
         id: float_box
@@ -513,14 +305,56 @@ NavigationLayout:
 """
 
 
-class KitchenSink(App, Screens):
-    theme_cls = ThemeManager()
-    theme_cls.primary_palette = "BlueGray"
-    theme_cls.accent_palette = "Gray"
+class KitchenSink(MDApp, Screens):
     previous_date = ObjectProperty()
-    title = "Kitchen Sink"
+    manager = ObjectProperty()
+    md_app_bar = ObjectProperty()
+    instance_menu_source_code = ObjectProperty()
+    md_theme_picker = ObjectProperty()
+    long_dialog = ObjectProperty()
+    input_dialog = ObjectProperty()
+    alert_dialog = ObjectProperty()
+    ok_cancel_dialog = ObjectProperty()
+    dialog = ObjectProperty()
+    user_card = ObjectProperty()
+    my_snackbar = ObjectProperty(None, allownone=True)
+    dialog_load_kv_files = ObjectProperty()
+
+    create_stack_floating_buttons = BooleanProperty(False)
+    manager_open = BooleanProperty(False)
+    cards_created = BooleanProperty(False)
+
+    _interval = NumericProperty(0)
+    tick = NumericProperty(0)
+    x = NumericProperty(0)
+    y = NumericProperty(25)
+    file_source_code = StringProperty("", allownone=True)
+    directory = StringProperty()
+
+    menu_items = ListProperty()
+    hex_primary_color = StringProperty()
+    previous_text = StringProperty()
+    previous_text_end = StringProperty()
+    names_contacts = ListProperty(
+        (
+            "Alexandr Taylor",
+            "Yuri Ivanov",
+            "Robert Patric",
+            "Bob Marley",
+            "Magnus Carlsen",
+            "Jon Romero",
+            "Anna Bell",
+            "Maxim Kramerer",
+            "Sasha Gray",
+            "Vladimir Ivanenko",
+        )
+    )
+    list_name_icons = ListProperty()
 
     def __init__(self, **kwargs):
+        self.title = "Kitchen Sink"
+        self.theme_cls.primary_palette = "BlueGray"
+        self.theme_cls.accent_palette = "Gray"
         super().__init__(**kwargs)
 
         self.menu_items = [
@@ -531,67 +365,10 @@ class KitchenSink(App, Screens):
             }
             for i in range(15)
         ]
-        self.Window = Window
-
-        # Default class instances.
-        self.manager = None
-        self.md_app_bar = None
-        self.instance_menu_source_code = None
-        self.md_theme_picker = None
-        self.long_dialog = None
-        self.input_dialog = None
-        self.alert_dialog = None
-        self.ok_cancel_dialog = None
-        self.long_dialog = None
-        self.dialog = None
-        self.user_card = None
-        self.my_snackbar = None
-        self.dialog_load_kv_files = None
-
-        self.create_stack_floating_buttons = False
-        self.manager_open = False
-        self.cards_created = False
-
-        self._interval = 0
-        self.tick = 0
-        self.x = 0
-        self.y = 25
-        self.file_source_code = ""
-
         self.hex_primary_color = get_hex_from_color(
             self.theme_cls.primary_color
         )
-        self.drawer_item_icons = {
-            "Bottom App Bar": "dock-bottom",
-            "Buttons": "rectangle",
-            "Cards": "cards-variant",
-            "Dialogs": "window-open",
-            "Download File": "download",
-            "Dropdown Item": "arrow-down-drop-circle",
-            "Expansion Panel": "arrow-expand-vertical",
-            "Floating Buttons": "format-float-right",
-            "Files Manager": "file-tree",
-            "Grid lists": "grid",
-            "Labels": "label",
-            "Lists": "format-list-bulleted",
-            "MD Icons": "material-design",
-            "Menus": "menu",
-            "Pickers": "calendar",
-            "Refresh Layout": "refresh",
-            "Selection controls": "checkbox-marked-circle-outline",
-            "Tabs": "tab",
-            "Text fields": "signature-text",
-            "Themes": "theme-light-dark",
-            "Toolbars": "set-top-box",
-            "User Animation Card": "animation",
-            "Bottom Navigation": "picture-in-picture-bottom-right",
-            "Bottom Sheets": "file-document-box-outline",
-            "Chips": "label-variant",
-            "Fan Manager": "fan",
-            "Progress & activity": "progress-check",
-            "Progress and Slider": "percent",
-            "Snackbars": "dock-window",
-        }
+
         self.previous_text = (
             f"Welcome to the application [b][color={self.hex_primary_color}]"
             f"Kitchen Sink[/color][/b].\nTo see [b]"
@@ -615,18 +392,6 @@ class KitchenSink(App, Screens):
             f"bulgakov-a-s@yandex.ru[/color][/b][/u]\n\n"
             f"and contributors..."
         )
-        self.names_contacts = (
-            "Alexandr Taylor",
-            "Yuri Ivanov",
-            "Robert Patric",
-            "Bob Marley",
-            "Magnus Carlsen",
-            "Jon Romero",
-            "Anna Bell",
-            "Maxim Kramerer",
-            "Sasha Gray",
-            "Vladimir Ivanenko",
-        )
         self.list_name_icons = list(md_icons.keys())[0:15]
         Window.bind(on_keyboard=self.events)
         crop_image(
@@ -634,6 +399,34 @@ class KitchenSink(App, Screens):
             f"{os.environ['KITCHEN_SINK_ASSETS']}guitar-1139397_1280.png",
             f"{os.environ['KITCHEN_SINK_ASSETS']}guitar-1139397_1280_crop.png",
         )
+
+    def build(self):
+        self.root = Builder.load_string(root_kv)
+
+    def on_start(self):
+        async def load_all_kv_files():
+            count_kvs = len(list(self.data.keys()))
+            for i, name_screen in enumerate(sorted(self.data.keys())):
+                await asynckivy.sleep(0)
+                self.dialog_load_kv_files.name_kv_file = name_screen
+                self.dialog_load_kv_files.percent = str(
+                    ((i + 1) * 100) // count_kvs
+                )
+                self.load_screen(name_screen)
+            self.dialog_load_kv_files.dismiss()
+
+        self.dialog_load_kv_files = DialogLoadKvFiles()
+        self.dialog_load_kv_files.open()
+        asynckivy.start(load_all_kv_files())
+
+    def on_pause(self):
+        return True
+
+    def on_stop(self):
+        pass
+
+    def open_settings(self, *args):
+        return False
 
     def show_demo_shrine(self, instance):
         """
@@ -666,10 +459,10 @@ class KitchenSink(App, Screens):
 
         from kivy.uix.image import Image
 
-        self.main_widget.ids.toolbar.right_action_items = []
-        self.main_widget.ids.toolbar.left_action_items = []
-        self.main_widget.ids.toolbar.height = 0
-        self.main_widget.ids.toolbar.title = ""
+        self.root.ids.toolbar.right_action_items = []
+        self.root.ids.toolbar.left_action_items = []
+        self.root.ids.toolbar.height = 0
+        self.root.ids.toolbar.title = ""
         box = BoxLayout(
             orientation="vertical",
             size_hint=(0.4, 0.6),
@@ -771,7 +564,7 @@ class KitchenSink(App, Screens):
             toast(instance_button.icon)
 
         if not self.create_stack_floating_buttons:
-            screen = self.main_widget.ids.scr_mngr.get_screen("stack buttons")
+            screen = self.root.ids.scr_mngr.get_screen("stack buttons")
             screen.add_widget(
                 MDStackFloatingButtons(
                     icon="lead-pencil",
@@ -805,14 +598,14 @@ class KitchenSink(App, Screens):
     def set_chevron_back_screen(self):
         """Sets the return chevron to the previous screen in ToolBar."""
 
-        self.main_widget.ids.toolbar.right_action_items = [
+        self.root.ids.toolbar.right_action_items = [
             ["dots-vertical", lambda x: self.root.toggle_nav_drawer()]
         ]
 
     def download_progress_hide(self, instance_progress, value):
         """Hides progress progress."""
 
-        self.main_widget.ids.toolbar.right_action_items = [
+        self.root.ids.toolbar.right_action_items = [
             [
                 "download",
                 lambda x: self.download_progress_show(instance_progress),
@@ -841,12 +634,12 @@ class KitchenSink(App, Screens):
 
         if get_connect():
             link = (
-                "https://www.python.org/ftp/python/3.5.1/"
-                "python-3.5.1-embed-win32.zip"
+                "https://www.python.org/ftp/python/3.8.0/"
+                "python-3.8.0-embed-win32.zip"
             )
             progress = MDProgressLoader(
                 url_on_image=link,
-                path_to_file=os.path.join(self.directory, "python-3.5.1.zip"),
+                path_to_file=os.path.join(self.directory, "python-3.8.0.zip"),
                 download_complete=self.download_complete,
                 download_hide=self.download_progress_hide,
             )
@@ -872,7 +665,9 @@ class KitchenSink(App, Screens):
         def open_drop_items_examples(text_item, dialog):
             dialog.dismiss()
             data = {"Item": "Dropdown Item", "List": "Dropdown Item List"}
-            self.show_screen(data[text_item])
+            self.root.ids.scr_mngr.current = self.data[data[text_item]][
+                "name_screen"
+            ]
             self.set_title_toolbar(data[text_item])
             set_list_drop_items()
 
@@ -929,7 +724,7 @@ class KitchenSink(App, Screens):
         self.set_chevron_menu()
 
     def set_chevron_menu(self):
-        self.main_widget.ids.toolbar.left_action_items = [
+        self.root.ids.toolbar.left_action_items = [
             ["menu", lambda x: self.root.toggle_nav_drawer()]
         ]
 
@@ -1030,12 +825,6 @@ class KitchenSink(App, Screens):
                 Clock.unschedule(update_screen)
 
         Clock.schedule_interval(update_screen, 1)
-
-    main_widget = None
-
-    def build(self):
-        self.main_widget = Builder.load_string(main_widget_kv)
-        return self.main_widget
 
     def show_user_example_animation_card(self):
         """Create and open instance MDUserAnimationCard
@@ -1305,7 +1094,7 @@ class KitchenSink(App, Screens):
     def set_title_toolbar(self, title):
         """Set string title in MDToolbar for the whole application."""
 
-        self.main_widget.ids.toolbar.title = title
+        self.root.ids.toolbar.title = title
 
     def set_appbar(self):
         """Create MDBottomAppBar for the screen BottomAppBar."""
@@ -1372,9 +1161,7 @@ class KitchenSink(App, Screens):
         """Builds a list of icons for the screen MDIcons."""
 
         def add_icon_item(name_icon):
-            self.main_widget.ids.scr_mngr.get_screen(
-                "md icons"
-            ).ids.rv.data.append(
+            self.root.ids.scr_mngr.get_screen("md icons").ids.rv.data.append(
                 {
                     "viewclass": "MDIconItemForMdIconsList",
                     "icon": name_icon,
@@ -1383,7 +1170,7 @@ class KitchenSink(App, Screens):
                 }
             )
 
-        self.main_widget.ids.scr_mngr.get_screen("md icons").ids.rv.data = []
+        self.root.ids.scr_mngr.get_screen("md icons").ids.rv.data = []
         for name_icon in md_icons.keys():
             if search:
                 if text in name_icon:
@@ -1395,14 +1182,14 @@ class KitchenSink(App, Screens):
         """Assigns the file_source_code attribute the file name
         with example code for the current screen."""
 
-        if self.main_widget.ids.scr_mngr.current == "code viewer":
+        if self.root.ids.scr_mngr.current == "code viewer":
             return
 
         has_screen = False
         for name_item_drawer in self.data.keys():
             if (
                 self.data[name_item_drawer]["name_screen"]
-                == self.main_widget.ids.scr_mngr.current
+                == self.root.ids.scr_mngr.current
             ):
                 self.file_source_code = self.data[name_item_drawer].get(
                     "source_code", None
@@ -1428,7 +1215,7 @@ class KitchenSink(App, Screens):
                         f"{os.path.splitext(self.file_source_code)[0]}"
                     )
             elif icon == "language-python":
-                self.main_widget.ids.scr_mngr.current = "code viewer"
+                self.root.ids.scr_mngr.current = "code viewer"
                 try:
                     self.data["Source code"][
                         "object"
@@ -1447,7 +1234,7 @@ class KitchenSink(App, Screens):
             "Source code": "language-python",
             "Open in Wiki": "source-repository",
         }
-        if self.main_widget.ids.scr_mngr.current == "code viewer":
+        if self.root.ids.scr_mngr.current == "code viewer":
             data = {"Open in Wiki": "source-repository"}
         for name_item in data.keys():
             menu_for_context_menu_source_code.append(
@@ -1467,53 +1254,6 @@ class KitchenSink(App, Screens):
             background_color=self.theme_cls.primary_dark,
         )
         context_menu.open(instance.ids.right_actions.children[0])
-
-    def on_pause(self):
-        return True
-
-    def on_start(self):
-        async def load_all_kv_files():
-            count_kvs = len(list(self.data.keys()))
-            for i, name_screen in enumerate(self.data.keys()):
-                await asynckivy.sleep(0)
-                self.dialog_load_kv_files.name_kv_file = name_screen
-                self.dialog_load_kv_files.percent = str(
-                    ((i + 1) * 100) // count_kvs
-                )
-                Builder.load_string(self.data[name_screen]["kv_string"])
-                self.data[name_screen]["object"] = eval(
-                    self.data[name_screen]["Factory"]
-                )
-                if name_screen == "Bottom App Bar":
-                    self.set_appbar()
-                    self.data[name_screen]["object"].add_widget(self.md_app_bar)
-                if name_screen != "Popup Screen":
-                    self.main_widget.ids.scr_mngr.add_widget(
-                        self.data[name_screen]["object"]
-                    )
-                if name_screen == "Text fields":
-                    self.data[name_screen]["object"].ids.text_field_error.bind(
-                        on_text_validate=self.set_error_message,
-                        on_focus=self.set_error_message,
-                    )
-                elif name_screen == "MD Icons":
-                    self.set_list_md_icons()
-                elif name_screen == "Tabs":
-                    self.build_tabs()
-                elif name_screen == "Refresh Layout":
-                    self.set_list_for_refresh_layout()
-
-            self.dialog_load_kv_files.dismiss()
-
-        self.dialog_load_kv_files = DialogLoadKvFiles()
-        self.dialog_load_kv_files.open()
-        asynckivy.start(load_all_kv_files())
-
-    def on_stop(self):
-        pass
-
-    def open_settings(self, *args):
-        return False
 
 
 class CodeInputViewer(ScrollView):

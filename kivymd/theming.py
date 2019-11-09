@@ -29,7 +29,7 @@ from kivy.properties import (
     BooleanProperty,
     DictProperty,
 )
-from kivy.uix.widget import Widget
+from kivy.event import EventDispatcher
 from kivy.utils import get_color_from_hex
 from kivy.atlas import Atlas
 
@@ -39,7 +39,7 @@ from kivymd.material_resources import DEVICE_TYPE, DEVICE_IOS
 from kivymd import images_path
 
 
-class ThemeManager(Widget):
+class ThemeManager(EventDispatcher):
     primary_palette = OptionProperty("Blue", options=palette)
     primary_hue = OptionProperty("500", options=hue)
     primary_light_hue = OptionProperty("200", options=hue)
@@ -356,16 +356,23 @@ class ThemeManager(Widget):
         Window.bind(size=self._determine_device_orientation)
 
 
-class ThemableBehavior(object):
-    theme_cls = ObjectProperty(None)
+class ThemableBehavior(EventDispatcher):
+    theme_cls = ObjectProperty()
     opposite_colors = BooleanProperty(False)
-    device_ios = DEVICE_IOS
+    device_ios = BooleanProperty(DEVICE_IOS)
 
     def __init__(self, **kwargs):
         if self.theme_cls is not None:
             pass
-        elif hasattr(App.get_running_app(), "theme_cls"):
-            self.theme_cls = App.get_running_app().theme_cls
         else:
-            self.theme_cls = ThemeManager()
+            if not isinstance(
+                App.get_running_app().property("theme_cls", True),
+                ObjectProperty,
+            ):
+                raise ValueError(
+                    "KivyMD: App object should be inherited from "
+                    "`kivymd.app.MDApp`. See "
+                    "https://github.com/HeaTTheatR/KivyMD/blob/master/README.md#api-breaking-changes"
+                )
+            self.theme_cls = App.get_running_app().theme_cls
         super().__init__(**kwargs)

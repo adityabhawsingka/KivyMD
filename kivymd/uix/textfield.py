@@ -18,7 +18,7 @@ as the Kivy framework.
 Example
 -------
 
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.factory import Factory
 
@@ -173,10 +173,7 @@ Builder.load_string('''
 ''')
 
 
-class Example(App):
-    theme_cls = ThemeManager()
-    theme_cls.primary_palette = 'Blue'
-    theme_cls.theme_style = "Dark"
+class Example(MDApp):
     title = "Example Text Fields"
     main_widget = None
 
@@ -432,6 +429,8 @@ Builder.load_string(
             font_family: root.font_family
             font_size: sp(root.font_size)
             allow_copy: root.allow_copy
+            text_validate_unfocus: root.text_validate_unfocus
+            focus: root.focus
             on_focus: root._on_focus(self)
             on_text:
                 root.text = self.text
@@ -1025,10 +1024,13 @@ class MDTextFieldRound(ThemableBehavior, BoxLayout):
     """
 
     focus = BooleanProperty()
-    """Whether or not the widget is focused"""
+    """get/set the widget's focus"""
+
+    text_validate_unfocus = BooleanProperty(True)
+    """ Whether on_text_validate() should unfocus the field"""
 
     radius = NumericProperty(dp(25))
-    """The values ​​of the rounding of the corners of the tex field."""
+    """The values ​​of the rounding of the corners of the text field."""
 
     field_height = NumericProperty(0)
     """Text box height."""
@@ -1091,11 +1093,17 @@ class MDTextFieldRound(ThemableBehavior, BoxLayout):
     def on_normal_color(self, instance, value):
         self._current_color = value
 
-    def get_color_line(self, field_inastance, field_text, field_focus):
+    def get_color_line(self, field_instance, field_text, field_focus):
         if not field_focus:
             if self.require_text_error and field_text == "":
                 self._outline_color = self.error_color
-                self._instance_icon_left.text_color = self._outline_color
+                try:
+                    if self._instance_icon_left:
+                        self._instance_icon_left.text_color = (
+                            self._outline_color
+                        )
+                except ReferenceError:
+                    pass
                 if self.require_text_error != "":
                     self.show_require_error()
             else:

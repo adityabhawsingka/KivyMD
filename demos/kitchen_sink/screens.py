@@ -11,11 +11,16 @@ as the Kivy framework.
 
 import os
 
-from kivy.factory import Factory
+from kivy import Logger
+from kivy.app import App
+from kivy.factory import Factory  # NOQA
 from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.metrics import dp
+from kivy.event import EventDispatcher
+from kivy.properties import DictProperty
 
+from kivymd.uix.navigationdrawer import NavigationDrawerIconButton
 from kivymd.utils.cropimage import crop_image
 
 source_code_viewer = """
@@ -1184,7 +1189,7 @@ refresh_layout = """
         MDScrollViewRefreshLayout:
             id: refresh_layout
             refresh_callback: app.refresh_callback
-            root_layout: app.main_widget.ids.float_box
+            root_layout: app.root.ids.float_box
 
             GridLayout:
                 id: box
@@ -1602,7 +1607,7 @@ fan_manager = """
     name: 'fan manager'
 
     on_enter:
-        app.main_widget.ids.toolbar.left_action_items = [['menu', lambda x: fan_screen_manager.open_fan()]]
+        app.root.ids.toolbar.left_action_items = [['menu', lambda x: fan_screen_manager.open_fan()]]
     on_leave: app.set_chevron_menu()
 
     MDFanScreenManager:
@@ -1618,22 +1623,22 @@ fan_manager = """
         ScreenOne:
             name: 'Screen One'
             path_to_image: f'{environ["KITCHEN_SINK_ASSETS"]}african-lion-951778_1280.png'
-            on_enter: app.main_widget.ids.toolbar.title = self.name
+            on_enter: app.set_title_toolbar(self.name)
 
         ScreenTwo:
             name: 'Screen Two'
             path_to_image: f'{environ["KITCHEN_SINK_ASSETS"]}beautiful-931152_1280.png'
-            on_enter: app.main_widget.ids.toolbar.title = self.name
+            on_enter: app.set_title_toolbar(self.name)
 
         ScreenTree:
             name: 'Screen Tree'
             path_to_image: f'{environ["KITCHEN_SINK_ASSETS"]}kitten-1049129_1280.png'
-            on_enter: app.main_widget.ids.toolbar.title = self.name
+            on_enter: app.set_title_toolbar(self.name)
 
         ScreenFour:
             name: 'Screen Four'
             path_to_image: f'{environ["KITCHEN_SINK_ASSETS"]}tangerines-1111529_1280.png'
-            on_enter: app.main_widget.ids.toolbar.title = self.name
+            on_enter: app.set_title_toolbar(self.name)
 
 
 <BaseFanScreen>
@@ -1769,6 +1774,7 @@ manager_swiper = """
 
             MDSwiperManager:
                 id: swiper_manager
+                paginator: paginator
 
                 Screen:
                     name: 'screen one'
@@ -1794,6 +1800,12 @@ manager_swiper = """
                     name: 'screen five'
                     MyCard:
                         text: 'Swipe to switch to screen five'.upper()
+            
+            MDSwiperPagination:
+                id: paginator
+                manager: swiper_manager
+                screens: swiper_manager.screen_names
+                
 """
 
 md_icon_item = """
@@ -1897,231 +1909,288 @@ md_icons = """
 """
 
 
-class Screens(object):
-    manager_swiper = None
-    main_widget = None
-    directory = None
+class Screens(EventDispatcher):
+    data = DictProperty(
+        {
+            "Themes": {
+                "kv_string": theming,
+                "Factory": "Factory.Theming()",
+                "name_screen": "theming",
+                "object": None,
+                "icon": "theme-light-dark",
+            },
+            "Bottom Navigation": {
+                "kv_string": bottom_navigation,
+                "Factory": "Factory.BottomNavigation()",
+                "name_screen": "bottom navigation",
+                "source_code": "Components-Bottom-Navigation.md",
+                "object": None,
+                "icon": "picture-in-picture-bottom-right",
+            },
+            "Bottom Sheets": {
+                "kv_string": bottom_sheet,
+                "Factory": "Factory.BottomSheet()",
+                "name_screen": "bottom sheet",
+                "source_code": "Components-Bottom-Sheet.md",
+                "object": None,
+                "icon": "file-document-box-outline",
+            },
+            "Dropdown Item": {
+                "kv_string": drop_item,
+                "Factory": "Factory.MDDropItem()",
+                "name_screen": "drop item",
+                "source_code": "Components-DropDownItem.md",
+                "object": None,
+                "icon": "arrow-down-drop-circle",
+            },
+            "Dropdown Item List": {
+                "kv_string": drop_item_list,
+                "Factory": "Factory.DropItemList()",
+                "name_screen": "drop item list",
+                "source_code": "Components-DropDownItem-with-ScrollView.md",
+                "object": None,
+            },
+            "Popup Screen": {
+                "kv_string": popup_screen,
+                "Factory": "Factory.ContentForPopupScreen()",
+                "name_screen": "popup screen",
+                "source_code": "Components-Progress-Loader.md",
+                "object": None,
+            },
+            "Fan Manager": {
+                "kv_string": fan_manager,
+                "Factory": "Factory.FanManager()",
+                "name_screen": "fan manager",
+                "source_code": "Components-Fan-Screen-Manager.md",
+                "object": None,
+                "icon": "fan",
+            },
+            "Progress and Slider": {
+                "kv_string": progress_bar,
+                "Factory": "Factory.ProgressBars()",
+                "name_screen": "progress bar",
+                "object": None,
+                "icon": "percent",
+            },
+            "Progress & activity": {
+                "kv_string": progress,
+                "Factory": "Factory.Progress()",
+                "name_screen": "progress",
+                "object": None,
+                "icon": "progress-check",
+            },
+            "Refresh Layout": {
+                "kv_string": refresh_layout,
+                "Factory": "Factory.RefreshLayout()",
+                "name_screen": "refresh layout",
+                "source_code": "Components-Refresh-Layout.md",
+                "object": None,
+                "icon": "refresh",
+            },
+            "Floating Buttons": {
+                "kv_string": stack_buttons,
+                "Factory": "Factory.StackButtons()",
+                "name_screen": "stack buttons",
+                "source_code": "Components-Stack-Floating-Buttons.md",
+                "object": None,
+                "icon": "format-float-right",
+            },
+            "Snackbars": {
+                "kv_string": snackbar,
+                "Factory": "Factory.MySnackBar()",
+                "name_screen": "snackbar",
+                "source_code": "Components-Snackbar.md",
+                "object": None,
+                "icon": "dock-window",
+            },
+            "Download File": {
+                "kv_string": download_file,
+                "Factory": "Factory.DownloadFile()",
+                "name_screen": "download file",
+                "object": None,
+                "icon": "download",
+            },
+            "User Animation Card": {
+                "kv_string": user_animation_card,
+                "Factory": "Factory.UserCard()",
+                "name_screen": "user animation card",
+                "source_code": "Components-User-Animation-Card.md",
+                "object": None,
+                "icon": "animation",
+            },
+            "Pickers": {
+                "kv_string": pickers,
+                "Factory": "Factory.Pickers()",
+                "name_screen": "pickers",
+                "source_code": "Components-Date-Picker.md",
+                "object": None,
+                "icon": "calendar",
+            },
+            "Cards": {
+                "kv_string": cards,
+                "Factory": "Factory.Cards()",
+                "name_screen": "cards",
+                "source_code": "Components-Card-Post.md",
+                "object": None,
+                "icon": "cards-variant",
+            },
+            "Dialogs": {
+                "kv_string": dialogs,
+                "Factory": "Factory.Dialogs()",
+                "name_screen": "dialogs",
+                "source_code": "Components-Dialog.md",
+                "object": None,
+                "icon": "message-processing",
+            },
+            "Toolbars": {
+                "kv_string": toolbars,
+                "Factory": "Factory.Toolbars()",
+                "name_screen": "toolbars",
+                "object": None,
+                "icon": "set-top-box",
+            },
+            "Buttons": {
+                "kv_string": buttons,
+                "Factory": "Factory.Buttons()",
+                "name_screen": "buttons",
+                "source_code": "Components-Button.md",
+                "object": None,
+                "icon": "rectangle",
+            },
+            "Files Manager": {
+                "kv_string": file_manager,
+                "Factory": "Factory.FileManager()",
+                "name_screen": "file manager",
+                "source_code": "Components-File-Manager.md",
+                "object": None,
+                "icon": "file-tree",
+            },
+            "Tabs": {
+                "kv_string": tabs,
+                "Factory": "Factory.Tabs()",
+                "name_screen": "tabs",
+                "source_code": "Components-Tabs.md",
+                "object": None,
+                "icon": "tab",
+            },
+            "Labels": {
+                "kv_string": labels,
+                "Factory": "Factory.Labels()",
+                "name_screen": "labels",
+                "object": None,
+                "icon": "label",
+            },
+            "Chips": {
+                "kv_string": chips,
+                "Factory": "Factory.Chips()",
+                "name_screen": "chips",
+                "source_code": "Components-Chip.md",
+                "object": None,
+                "icon": "label-variant",
+            },
+            "Lists": {
+                "kv_string": lists,
+                "Factory": "Factory.Lists()",
+                "name_screen": "lists",
+                "object": None,
+                "icon": "format-list-bulleted",
+            },
+            "Expansion Panel": {
+                "kv_string": expansion_panel,
+                "Factory": "Factory.MyExpansionPanel()",
+                "name_screen": "expansion panel",
+                "source_code": "Components-Expansion-Panel.md",
+                "object": None,
+                "icon": "arrow-expand-vertical",
+            },
+            "Grid lists": {
+                "kv_string": grid,
+                "Factory": "Factory.Grid()",
+                "name_screen": "grid",
+                "source_code": "Components-SmartTileWithStar.md",
+                "object": None,
+                "icon": "grid",
+            },
+            "Selection controls": {
+                "kv_string": selection_controls,
+                "Factory": "Factory.SelectionControls()",
+                "name_screen": "selection controls",
+                "object": None,
+                "icon": "checkbox-marked-circle-outline",
+            },
+            "Menus": {
+                "kv_string": menu,
+                "Factory": "Factory.Menu()",
+                "name_screen": "menu",
+                "object": None,
+                "icon": "menu",
+            },
+            "MD Icons": {
+                "kv_string": md_icons,
+                "Factory": "Factory.MDIcons()",
+                "name_screen": "md icons",
+                "object": None,
+                "icon": "material-design",
+            },
+            "Bottom App Bar": {
+                "kv_string": bottom_app_bar,
+                "Factory": "Factory.BottomAppBar()",
+                "name_screen": "bottom app bar",
+                "source_code": "Components-Bottom-App-Bar.md",
+                "object": None,
+                "icon": "dock-bottom",
+            },
+            "Source code": {
+                "kv_string": source_code_viewer,
+                "Factory": "Factory.CodeInputScreen()",
+                "name_screen": "code viewer",
+                "object": None,
+            },
+            "Text fields": {
+                "kv_string": textfields,
+                "Factory": "Factory.TextFields()",
+                "name_screen": "textfields",
+                "source_code": "Components-Text-Field.md",
+                "object": None,
+                "icon": "signature-text",
+            },
+            "Manager Swiper": {
+                "kv_string": manager_swiper,
+                "Factory": "Factory.MySwiperManager()",
+                "name_screen": "manager swiper",
+                "object": None,
+                "icon": "gesture-swipe",
+            },
+        }
+    )
 
-    data = {
-        "Themes": {
-            "kv_string": theming,
-            "Factory": "Factory.Theming()",
-            "name_screen": "theming",
-            "object": None,
-        },
-        "Bottom Navigation": {
-            "kv_string": bottom_navigation,
-            "Factory": "Factory.BottomNavigation()",
-            "name_screen": "bottom navigation",
-            "source_code": "Components-Bottom-Navigation.md",
-            "object": None,
-        },
-        "Bottom Sheets": {
-            "kv_string": bottom_sheet,
-            "Factory": "Factory.BottomSheet()",
-            "name_screen": "bottom sheet",
-            "source_code": "Components-Bottom-Sheet.md",
-            "object": None,
-        },
-        "Dropdown Item": {
-            "kv_string": drop_item,
-            "Factory": "Factory.MDDropItem()",
-            "name_screen": "drop item",
-            "source_code": "Components-DropDownItem.md",
-            "object": None,
-        },
-        "Dropdown Item List": {
-            "kv_string": drop_item_list,
-            "Factory": "Factory.DropItemList()",
-            "name_screen": "drop item list",
-            "source_code": "Components-DropDownItem-with-ScrollView.md",
-            "object": None,
-        },
-        "Popup Screen": {
-            "kv_string": popup_screen,
-            "Factory": "Factory.ContentForPopupScreen()",
-            "name_screen": "popup screen",
-            "source_code": "Components-Progress-Loader.md",
-            "object": None,
-        },
-        "Fan Manager": {
-            "kv_string": fan_manager,
-            "Factory": "Factory.FanManager()",
-            "name_screen": "fan manager",
-            "source_code": "Components-Fan-Screen-Manager.md",
-            "object": None,
-        },
-        "Progress and Slider": {
-            "kv_string": progress_bar,
-            "Factory": "Factory.ProgressBars()",
-            "name_screen": "progress bar",
-            "object": None,
-        },
-        "Progress & activity": {
-            "kv_string": progress,
-            "Factory": "Factory.Progress()",
-            "name_screen": "progress",
-            "object": None,
-        },
-        "Refresh Layout": {
-            "kv_string": refresh_layout,
-            "Factory": "Factory.RefreshLayout()",
-            "name_screen": "refresh layout",
-            "source_code": "Components-Refresh-Layout.md",
-            "object": None,
-        },
-        "Floating Buttons": {
-            "kv_string": stack_buttons,
-            "Factory": "Factory.StackButtons()",
-            "name_screen": "stack buttons",
-            "source_code": "Components-Stack-Floating-Buttons.md",
-            "object": None,
-        },
-        "Snackbars": {
-            "kv_string": snackbar,
-            "Factory": "Factory.MySnackBar()",
-            "name_screen": "snackbar",
-            "source_code": "Components-Snackbar.md",
-            "object": None,
-        },
-        "Download File": {
-            "kv_string": download_file,
-            "Factory": "Factory.DownloadFile()",
-            "name_screen": "download file",
-            "object": None,
-        },
-        "User Animation Card": {
-            "kv_string": user_animation_card,
-            "Factory": "Factory.UserCard()",
-            "name_screen": "user animation card",
-            "source_code": "Components-User-Animation-Card.md",
-            "object": None,
-        },
-        "Pickers": {
-            "kv_string": pickers,
-            "Factory": "Factory.Pickers()",
-            "name_screen": "pickers",
-            "source_code": "Components-Date-Picker.md",
-            "object": None,
-        },
-        "Cards": {
-            "kv_string": cards,
-            "Factory": "Factory.Cards()",
-            "name_screen": "cards",
-            "source_code": "Components-Card-Post.md",
-            "object": None,
-        },
-        "Dialogs": {
-            "kv_string": dialogs,
-            "Factory": "Factory.Dialogs()",
-            "name_screen": "dialogs",
-            "source_code": "Components-Dialog.md",
-            "object": None,
-        },
-        "Toolbars": {
-            "kv_string": toolbars,
-            "Factory": "Factory.Toolbars()",
-            "name_screen": "toolbars",
-            "object": None,
-        },
-        "Buttons": {
-            "kv_string": buttons,
-            "Factory": "Factory.Buttons()",
-            "name_screen": "buttons",
-            "source_code": "Components-Button.md",
-            "object": None,
-        },
-        "Files Manager": {
-            "kv_string": file_manager,
-            "Factory": "Factory.FileManager()",
-            "name_screen": "file manager",
-            "source_code": "Components-File-Manager.md",
-            "object": None,
-        },
-        "Tabs": {
-            "kv_string": tabs,
-            "Factory": "Factory.Tabs()",
-            "name_screen": "tabs",
-            "source_code": "Components-Tabs.md",
-            "object": None,
-        },
-        "Labels": {
-            "kv_string": labels,
-            "Factory": "Factory.Labels()",
-            "name_screen": "labels",
-            "object": None,
-        },
-        "Chips": {
-            "kv_string": chips,
-            "Factory": "Factory.Chips()",
-            "name_screen": "chips",
-            "source_code": "Components-Chip.md",
-            "object": None,
-        },
-        "Lists": {
-            "kv_string": lists,
-            "Factory": "Factory.Lists()",
-            "name_screen": "lists",
-            "object": None,
-        },
-        "Expansion Panel": {
-            "kv_string": expansion_panel,
-            "Factory": "Factory.MyExpansionPanel()",
-            "name_screen": "expansion panel",
-            "source_code": "Components-Expansion-Panel.md",
-            "object": None,
-        },
-        "Grid lists": {
-            "kv_string": grid,
-            "Factory": "Factory.Grid()",
-            "name_screen": "grid",
-            "source_code": "Components-SmartTileWithStar.md",
-            "object": None,
-        },
-        "Selection controls": {
-            "kv_string": selection_controls,
-            "Factory": "Factory.SelectionControls()",
-            "name_screen": "selection controls",
-            "object": None,
-        },
-        "Menus": {
-            "kv_string": menu,
-            "Factory": "Factory.Menu()",
-            "name_screen": "menu",
-            "object": None,
-        },
-        "MD Icons": {
-            "kv_string": md_icons,
-            "Factory": "Factory.MDIcons()",
-            "name_screen": "md icons",
-            "object": None,
-        },
-        "Bottom App Bar": {
-            "kv_string": bottom_app_bar,
-            "Factory": "Factory.BottomAppBar()",
-            "name_screen": "bottom app bar",
-            "source_code": "Components-Bottom-App-Bar.md",
-            "object": None,
-        },
-        "Source code": {
-            "kv_string": source_code_viewer,
-            "Factory": "Factory.CodeInputScreen()",
-            "name_screen": "code viewer",
-            "object": None,
-        },
-        "Text fields": {
-            "kv_string": textfields,
-            "Factory": "Factory.TextFields()",
-            "name_screen": "textfields",
-            "source_code": "Components-Text-Field.md",
-            "object": None,
-        },
-    }
+    def show_screen(self, name_screen):
+        Logger.debug(f"Kitchen Sink: Show screen {name_screen}")
 
-    def show_manager_swiper(self):
-        from kivymd.uix.managerswiper import MDSwiperPagination
+        if name_screen == "Dropdown Item":
+            self.open_drop_items_examples()
+        else:
+            self.root.ids.scr_mngr.current = self.data[name_screen][
+                "name_screen"
+            ]
+        self.set_title_toolbar(name_screen)
 
-        if not self.manager_swiper:
+    def load_screen(self, name_screen):
+        Logger.debug(f"Kitchen Sink: Load screen {name_screen}")
+        # Add button to navigation drawer
+        if "icon" in self.data[name_screen]:
+            self.root.ids.nav_drawer.add_widget(
+                MyNavigationDrawerIconButton(
+                    text=name_screen, icon=self.data[name_screen]["icon"]
+                )
+            )
+
+        # Load kv string
+        if "kv_string" in self.data[name_screen]:
+            Builder.load_string(self.data[name_screen]["kv_string"])
+
+        # Actions before loading screen object
+        if name_screen == "Manager Swiper":
             path_to_crop_image = f"{os.environ['KITCHEN_SINK_ASSETS']}guitar-1139397_1280_swiper_crop.png"
             if not os.path.exists(path_to_crop_image):
                 crop_image(
@@ -2130,20 +2199,33 @@ class Screens(object):
                     path_to_crop_image,
                 )
 
-            Builder.load_string(manager_swiper)
-            self.manager_swiper = Factory.MySwiperManager()
-            self.main_widget.ids.scr_mngr.add_widget(self.manager_swiper)
-            paginator = MDSwiperPagination()
-            paginator.screens = (
-                self.manager_swiper.ids.swiper_manager.screen_names
+        # Load screen object
+        if "object" in self.data[name_screen]:
+            self.data[name_screen]["object"] = eval(
+                self.data[name_screen]["Factory"]
             )
-            paginator.manager = self.manager_swiper.ids.swiper_manager
-            self.manager_swiper.ids.swiper_manager.paginator = paginator
-            self.manager_swiper.ids.box.add_widget(paginator)
+            if name_screen != "Popup Screen":
+                self.root.ids.scr_mngr.add_widget(
+                    self.data[name_screen]["object"]
+                )
 
-        self.main_widget.ids.scr_mngr.current = "manager swiper"
+        # Actions after loading screen object
+        if name_screen == "Bottom App Bar":
+            self.set_appbar()
+            self.data[name_screen]["object"].add_widget(self.md_app_bar)
+        elif name_screen == "Text fields":
+            self.data[name_screen]["object"].ids.text_field_error.bind(
+                on_text_validate=self.set_error_message,
+                on_focus=self.set_error_message,
+            )
+        elif name_screen == "MD Icons":
+            self.set_list_md_icons()
+        elif name_screen == "Tabs":
+            self.build_tabs()
+        elif name_screen == "Refresh Layout":
+            self.set_list_for_refresh_layout()
 
-    def show_screen(self, name_screen):
-        self.main_widget.ids.scr_mngr.current = self.data[name_screen][
-            "name_screen"
-        ]
+
+class MyNavigationDrawerIconButton(NavigationDrawerIconButton):
+    def on_release(self):
+        App.get_running_app().show_screen(self.text)
