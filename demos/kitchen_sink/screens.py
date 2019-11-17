@@ -943,9 +943,8 @@ lists = """
 
             ThreeLineListItem:
                 text: "Three-line item"
-                secondary_text:
-                    "This is a multi-line label where you can "\
-                    "fit more text than usual"
+                secondary_text: "This is a multi-line label where you can"
+                tertiary_text: "fit more text than usual"
 
             OneLineAvatarListItem:
                 text: "Single-line item with avatar"
@@ -962,8 +961,8 @@ lists = """
             ThreeLineAvatarListItem:
                 type: "three-line"
                 text: "Three-line item..."
-                secondary_text:
-                    "...with avatar..." + '\\n' + "and third line!"
+                secondary_text: "...with avatar..."
+                tertiary_text: "and third line!"
                 ImageLeftWidget:
                     source: f'{environ["KITCHEN_SINK_ASSETS"]}avatar.png'
 
@@ -982,8 +981,8 @@ lists = """
 
             ThreeLineIconListItem:
                 text: "Three-line item..."
-                secondary_text:
-                    "...with left icon..." + '\\n' + "and third line!"
+                secondary_text: "...with left icon..."
+                tertiary_text: "and third line!"
                 IconLeftWidget:
                     id: li_icon_3
                     icon: 'sd'
@@ -1003,8 +1002,8 @@ lists = """
 
             ThreeLineAvatarIconListItem:
                 text: "Three-line item..."
-                secondary_text:
-                    "...with avatar&icon..." + '\\n' + "and third line!"
+                secondary_text: "...with avatar&icon..."
+                tertiary_text: "and third line!"
                 ImageLeftWidget:
                     source: f'{environ["KITCHEN_SINK_ASSETS"]}avatar.png'
                 IconRightSampleWidget:
@@ -1051,6 +1050,48 @@ snackbar = """
         x: Window.width - self.width - dp(10)
         y: dp(10)
         on_release: app.show_example_snackbar('float')
+"""
+
+tooltips = """
+#:import random random
+#:import hex_colormap kivy.utils.hex_colormap
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import md_icons kivymd.icon_definitions.md_icons
+
+#:set ICONS list(md_icons.keys())
+
+
+<IconButtonTooltips@MDIconButton+MDTooltip>
+
+
+<Tooltips@Screen>
+    name: "tooltips"
+
+    BoxLayout:
+        size_hint: None, None
+        size: self.minimum_size
+        padding: "10dp"
+        spacing: "10dp"
+        pos_hint: {'center_x': .5, "center_y": .9}
+
+        IconButtonTooltips:
+            icon: random.choice(ICONS)
+            tooltip_text: "MDIconButton"
+        IconButtonTooltips:
+            icon: random.choice(ICONS)
+            tooltip_text: "MDIconButton"
+        IconButtonTooltips:
+            icon: random.choice(ICONS)
+            tooltip_text: "MDIconButton"
+        IconButtonTooltips:
+            icon: random.choice(ICONS)
+            tooltip_text: "MDIconButton"
+        IconButtonTooltips:
+            icon: random.choice(ICONS)
+            tooltip_text: "MDIconButton"
+        IconButtonTooltips:
+            icon: random.choice(ICONS)
+            tooltip_text: "MDIconButton"
 """
 
 download_file = """
@@ -1173,6 +1214,234 @@ stack_buttons = """
     on_enter: app.example_add_stack_floating_buttons()
 """
 
+backdrop = """
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import Window kivy.core.window.Window
+#:import IconLeftWidget kivymd.uix.list.IconLeftWidget
+
+
+<ItemBackdropFrontLayer@TwoLineAvatarListItem>
+    icon: "android"
+
+    IconLeftWidget:
+        icon: root.icon
+
+
+<ItemBackdropBackLayer>
+    size_hint_y: None
+    height: self.minimum_height
+    spacing: "10dp"
+
+    canvas:
+        Color:
+            rgba:
+                root.theme_cls.primary_dark if root.selected_item \
+                else root.theme_cls.primary_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+
+    MDIconButton:
+        icon: root.icon
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, .5 if not root.selected_item else 1, 1, 1, 1
+
+    MDLabel:
+        text: root.text
+        color: 1, 1, 1, .5 if not root.selected_item else 1, 1, 1, 1
+
+
+<ItemBackdropBackLayerOfSecondScreen@BoxLayout>
+    size_hint_y: None
+    height: "40dp"
+    spacing: "25dp"
+    text: ""
+
+    MDCheckbox:
+        size_hint: None, None
+        size: "30dp", "30dp"
+        active: False or self.active
+        pos_hint: {"center_y": .5}
+        selected_color: 1, 1, 1, 1
+
+    MDLabel:
+        text: root.text
+        color: 1, 1, 1, .7
+
+
+<ItemRoundBackdropBackLayerOfSecondScreen@BoxLayout>
+    size_hint_y: None
+    height: "40dp"
+    spacing: "25dp"
+    text: ""
+
+    MDCheckbox:
+        group: "size"
+        size_hint: None, None
+        size: "30dp", "30dp"
+        pos_hint: {"center_y": .5}
+        selected_color: 1, 1, 1, 1
+
+    MDLabel:
+        text: root.text
+        color: 1, 1, 1, .7
+
+
+<MyBackdropFrontLayer@ScrollView>
+    backdrop: None
+    backlayer: None
+
+    GridLayout:
+        size_hint_y: None
+        height: self.minimum_height
+        cols: 1
+        padding: "5dp"
+
+        ItemBackdropFrontLayer:
+            text: "Press item"
+            secondary_text: "to Shop Electronics"
+            icon: "monitor-star"
+            on_press:
+                root.backlayer.current = "second screen"
+                root.backdrop.open()
+
+        ItemBackdropFrontLayer:
+            text: "Press item"
+            secondary_text: "to Back"
+            icon: "arrange-send-backward"
+            on_press:
+                root.backlayer.current = "one screen"
+                root.backdrop.open()
+
+        ItemBackdropFrontLayer:
+            text: "Lower the front layer"
+            secondary_text: " by 50 %"
+            icon: "transfer-down"
+            on_press:
+                root.backdrop.open(-Window.height / 2)
+
+
+<MyBackdropBackLayer@ScreenManager>
+    transition: NoTransition()
+
+    Screen:
+        name: "one screen"
+
+        ScrollView
+
+            GridLayout:
+                size_hint_y: None
+                height: self.minimum_height
+                cols: 1
+                padding: "5dp"
+        
+                ItemBackdropBackLayer:
+                    icon: 'theater'
+                    text: "TV & Home Theaters"
+                ItemBackdropBackLayer:
+                    icon: 'desktop-mac'
+                    text: "Computers"
+                ItemBackdropBackLayer:
+                    icon: 'camera-plus-outline'
+                    text: "Camera and Camcorders"
+                ItemBackdropBackLayer:
+                    icon: 'speaker'
+                    text: "Speakers"
+                ItemBackdropBackLayer:
+                    icon: 'cellphone-iphone'
+                    text: "Mobile Phones"
+                ItemBackdropBackLayer:
+                    icon: 'movie-outline'
+                    text: "Movies"
+                ItemBackdropBackLayer:
+                    icon: 'gamepad-variant-outline'
+                    text: "Games"
+                ItemBackdropBackLayer:
+                    icon: 'music-circle-outline'
+                    text: "Music"
+
+    Screen:
+        name: "second screen"
+
+        ScrollView
+
+            GridLayout:
+                size_hint_y: None
+                height: self.minimum_height
+                cols: 1
+                padding: "15dp"
+                spacing: "10dp"
+
+                MDLabel:
+                    text: "Types of TVs Home Theater Product"
+                    color: 1, 1, 1, 1
+
+                Widget:
+                    size_hint_y: None
+                    height: "10dp"
+
+                ItemBackdropBackLayerOfSecondScreen:
+                    text: "Smart TV"
+                ItemBackdropBackLayerOfSecondScreen:
+                    text: "4K Ultra HD TVs"
+                ItemBackdropBackLayerOfSecondScreen:
+                    text: "Curved TVs"
+                ItemBackdropBackLayerOfSecondScreen:
+                    text: "OLED TVs"
+                ItemBackdropBackLayerOfSecondScreen:
+                    text: "LED TVs"
+                ItemBackdropBackLayerOfSecondScreen:
+                    text: "Home Theater Systems"
+
+                MDSeparator:
+
+                Widget:
+                    size_hint_y: None
+                    height: "15dp"
+
+                MDLabel:
+                    text: "Types of TVs Home Theater Product"
+                    color: 1, 1, 1, 1
+                
+                ItemRoundBackdropBackLayerOfSecondScreen:
+                    text: "TVs up to 32\\""
+                ItemRoundBackdropBackLayerOfSecondScreen:
+                    text: "TVs 39\\"-50\\""
+                ItemRoundBackdropBackLayerOfSecondScreen:
+                    text: "TVs 55\\" or larger"
+
+
+<Backdrop@Screen>
+    name: "backdrop"
+    toolbar_height: 0
+    on_enter:
+        self.toolbar_height = app.root.ids.toolbar.height
+        app.root.ids.toolbar.height = 0
+        app.toolbar_hide = True
+    on_leave:
+        app.toolbar_hide = False
+        app.root.ids.toolbar.height = self.toolbar_height
+
+    MDBackdrop:
+        id: backdrop
+        on_open: print("on_open")
+        on_close: print("on_close")
+        left_action_items: [['menu', lambda x: self.open()]]
+        right_action_items:
+            [['dots-vertical', lambda x: app.open_context_menu_source_code(backdrop.ids.toolbar)]] 
+        title: "Example Backdrop"
+        header_text: "Menu:"
+
+        MDBackdropBackLayer:
+            MyBackdropBackLayer:
+                id: backlayer
+
+        MDBackdropFrontLayer:
+            MyBackdropFrontLayer:
+                backdrop: backdrop
+                backlayer: backlayer
+"""
+
 refresh_layout = """
 <ItemForListRefreshLayout>
     text: root.text
@@ -1250,6 +1519,118 @@ progress_bar = """
             MDProgressBar:
                 orientation: "vertical"
                 value: progress_slider.value
+"""
+
+banner = """
+<Banner@Screen>
+    name: "banner"
+
+    MDBanner:
+        id: banner
+        over_widget: scroll
+
+    ScrollView:
+        id: scroll
+        size_hint_y: None
+        height: Window.height - app.root.ids.toolbar.height
+
+        GridLayout:
+            id: box
+            size_hint_y: None
+            height: self.minimum_height
+            cols: 1
+            padding: "10dp"
+            spacing: "10dp"
+
+            OneLineListItem:
+                text: "ThreeLineBanner"
+                on_release:
+                    banner.type = "three-line"
+                    banner.text = \
+                    [\
+                    "Three line string text example with two actions.", \
+                    "This is the second line of the banner message,", \
+                    "and this is the third line of the banner message.",
+                    ]
+                    banner.left_action = ["CANCEL", lambda x: None]
+                    banner.right_action = ["CLOSE", lambda x: banner.hide()]
+                    banner.show()
+
+            OneLineListItem:
+                text: "TwoLineBanner"
+                on_release:
+                    banner.type = "two-line"
+                    banner.text = \
+                    [\
+                    "One line string text example with two actions.", \
+                    "This is the second line of the banner message.", \
+                    ]
+                    banner.left_action = ["CANCEL", lambda x: None]
+                    banner.right_action = ["CLOSE", lambda x: banner.hide()]
+                    banner.show()
+
+            OneLineListItem:
+                text: "OneLineBanner"
+                on_release:
+                    banner.type = "one-line"
+                    banner.text = ["One line string text example with two actions."]
+                    banner.left_action = ["CANCEL", lambda x: None]
+                    banner.right_action = ["CLOSE", lambda x: banner.hide()]
+                    banner.show()
+
+            OneLineListItem:
+                text: "ThreeLineIconBanner"
+                on_release:
+                    banner.type = "three-line-icon"
+                    banner.text = \
+                    [\
+                    "Three line string text example with two actions.", \
+                    "This is the second line of the banner message,", \
+                    "and this is the third line of the banner message.",
+                    ]
+                    banner.left_action = ["CANCEL", lambda x: None]
+                    banner.right_action = ["CLOSE", lambda x: banner.hide()]
+                    banner.show()
+
+            OneLineListItem:
+                text: "TwoLineIconBanner"
+                on_release:
+                    banner.type = "two-line-icon"
+                    banner.text = \
+                    [\
+                    "One line string text example with two actions.", \
+                    "This is the second line of the banner message.", \
+                    ]
+                    banner.left_action = ["CANCEL", lambda x: None]
+                    banner.right_action = ["CLOSE", lambda x: banner.hide()]
+                    banner.show()
+
+            OneLineListItem:
+                text: "OneLineIconBanner"
+                on_release:
+                    banner.type = "one-line-icon"
+                    banner.text = ["One line string text example with two actions."]
+                    banner.left_action = ["CANCEL", lambda x: None]
+                    banner.right_action = ["CLOSE", lambda x: banner.hide()]
+                    banner.show()
+
+            OneLineListItem:
+                text: "Banner without actions"
+                on_release:
+                    banner.type = "one-line-icon"
+                    banner.text = ["One line string text example without actions."]
+                    banner.left_action = []
+                    banner.right_action = []
+                    banner.show()
+
+            OneLineListItem:
+                text: "Banner with one actions"
+                on_release:
+                    banner.type = "one-line-icon"
+                    banner.text = ["One line string text example without actions."]
+                    banner.left_action = []
+                    banner.right_action = ["CLOSE", lambda x: banner.hide()]
+                    banner.show()
 """
 
 labels = """
@@ -1919,6 +2300,22 @@ class Screens(EventDispatcher):
                 "object": None,
                 "icon": "theme-light-dark",
             },
+            "Backdrop": {
+                "kv_string": backdrop,
+                "Factory": "Factory.Backdrop()",
+                "name_screen": "backdrop",
+                "source_code": "Components-Backdrop.md",
+                "object": None,
+                "icon": "layers-outline",
+            },
+            "Banner": {
+                "kv_string": banner,
+                "Factory": "Factory.Banner()",
+                "name_screen": "banner",
+                "source_code": "Components-Banner.md",
+                "object": None,
+                "icon": "message-alert-outline",
+            },
             "Bottom Navigation": {
                 "kv_string": bottom_navigation,
                 "Factory": "Factory.BottomNavigation()",
@@ -2153,6 +2550,14 @@ class Screens(EventDispatcher):
                 "source_code": "Components-Text-Field.md",
                 "object": None,
                 "icon": "signature-text",
+            },
+            "Tooltips": {
+                "kv_string": tooltips,
+                "Factory": "Factory.Tooltips()",
+                "name_screen": "tooltips",
+                "source_code": "Components-Tooltips.md",
+                "object": None,
+                "icon": "tooltip-text-outline",
             },
             "Manager Swiper": {
                 "kv_string": manager_swiper,

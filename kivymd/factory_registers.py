@@ -5,7 +5,10 @@ Register KivyMD widgets to use without import
 from kivy.factory import Factory
 
 r = Factory.register
+r("MDBackdrop", module="kivymd.uix.backdrop")
 r("MDTab", module="kivymd.uix.bottomnavigation")
+r("MDBanner", module="kivymd.uix.banner")
+r("MDTooltip", module="kivymd.uix.tooltip")
 r("MDBottomNavigation", module="kivymd.uix.bottomnavigation")
 r("MDBottomNavigationItem", module="kivymd.uix.bottomnavigation")
 r("MDBottomNavigationHeader", module="kivymd.uix.bottomnavigation")
